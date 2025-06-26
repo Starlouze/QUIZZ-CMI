@@ -12,27 +12,29 @@
   <div id="container">
     <div id="home-screen">
       <h2>QUIZZ CMI</h2>
-      <button id="joueur-btn">Joueur</button>
-      <button id="admin-btn">Admin</button>
+      <div class="rules">
+        <strong>Règles :</strong><br>
+        - Répondez à chaque question.<br>
+        - Les bonnes réponses vous rapportent 1 point.<br>
+        - Une seule tentative par question.<br>
+      </div>
+      <button id="joueur-btn">🎮 Joueur</button>
+      <button id="admin-btn">🔐 Admin</button>
     </div>
 
     <div id="joueur-screen" style="display:none">
       <h3>Bienvenue Joueur</h3>
-      <div class="rules">
-        <strong>Règles :</strong> <br>
-        - Répondez à chaque question. <br>
-        - Les bonnes réponses vous rapportent 1 point. <br>
-        - Une seule tentative par question. <br>
-      </div>
       <label>Nom de l'équipe :</label>
       <input type="text" id="teamname">
-      <button id="start-btn">Commencer le quiz</button>
+      <button id="start-btn">🚀 Commencer le quiz</button>
+      <button onclick="location.reload()">🏠 Accueil</button>
     </div>
 
     <div id="quiz-screen" style="display:none">
       <h3 id="question-title"></h3>
       <div id="options"></div>
       <div id="score-container" style="display:none;"></div>
+      <button onclick="location.reload()">🏠 Accueil</button>
     </div>
 
     <div id="admin-screen" style="display:none">
@@ -42,6 +44,7 @@
       <button id="validate-admin-btn">Valider</button>
       <button id="refresh-btn" style="display:none;">🔄 Rafraîchir les scores</button>
       <button id="reset-btn" style="display:none;">🗑 Réinitialiser les scores</button>
+      <button onclick="location.reload()">🏠 Accueil</button>
 
       <div id="admin-results" style="margin-top: 20px;"></div>
 
