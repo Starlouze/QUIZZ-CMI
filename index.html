@@ -15,21 +15,23 @@
   hr { border: none; border-top: 1px solid #ddd; margin: 12px 0; }
   .rules { background: #e0f7ff; padding: 10px; border-radius: 8px; margin-bottom: 16px; }
 </style>
+
 <!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script>
-  // 🔽 Mets ton config ici :
+  // 🔽 Ton config Firebase
   const firebaseConfig = {
-    apiKey: "AI...XXX",
+    apiKey: "AIzaSyDxfxlXSJNmV_LOTMfWDPfh5WEMGZiU0cw",
     authDomain: "quiz-cmi.firebaseapp.com",
-    databaseURL: "https://quiz-cmi.firebaseio.com",
+    databaseURL: "https://quiz-cmi-default-rtdb.europe-west1.firebasedatabase.app",
     projectId: "quiz-cmi",
     storageBucket: "quiz-cmi.appspot.com",
-    messagingSenderId: "...",
-    appId: "..."
+    messagingSenderId: "442390350641",
+    appId: "1:442390350641:web:373dabe481fb9242147e10",
+    measurementId: "G-J38H6PLV06"
   };
-  firebase.initializeApp(firebaseConfig);
+  firebase.initializeApp(firebaseConfig);  
   const db = firebase.database();
 </script>
 </head>
@@ -106,14 +108,9 @@
   }
 
   function envoyerResultat(teamName, score, reponsesUtilisateur) {
-    firebase.database().ref('scores/').push({
-      teamName: teamName,
-      score: score,
-      answers: reponsesUtilisateur,
-      timestamp: new Date().toISOString()
-    })
-    .then(() => console.log('✅ Résultat enregistré dans Firebase'))
-    .catch((error) => console.error('❌ Erreur Firebase:', error));
+    return db.ref('scores/').push({ teamName, score, answers: reponsesUtilisateur, timestamp: new Date().toISOString() })
+      .then(() => console.log('✅ Résultat enregistré dans Firebase'))
+      .catch((error) => console.error('❌ Erreur Firebase:', error));
   }
 
   function afficherResultats() {
@@ -128,7 +125,7 @@
                Bonne réponse : ${r.options[r.bonne]}</p><hr>`;
     });
 
-    // 🔽 Envoie le résultat dans Firebase
+    // Enregistrer dans Firebase
     envoyerResultat(teamName, score, reponsesUtilisateur);
 
     scoreContainer.innerHTML = html;
