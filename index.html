@@ -16,7 +16,6 @@
   .rules { background: #e0f7ff; padding: 10px; border-radius: 8px; margin-bottom: 16px; }
 </style>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script>
@@ -38,14 +37,7 @@
 <div id="container">
   <!-- Accueil -->
   <div id="home-screen">
-    <h2>Quiz 🎉</h2>
-    <button id="joueur-btn">Joueur</button>
-    <button id="admin-btn">Admin</button>
-  </div>
-
-  <!-- Joueur -->
-  <div id="joueur-screen" style="display:none;">
-    <h2>Bienvenue sur le Quiz 🎮</h2>
+    <h2>Bienvenue sur le Quiz 🎉</h2>
     <div class="rules">
       <h3>Règles :</h3>
       <ul>
@@ -54,6 +46,13 @@
         <li>Bonne chance à tous !</li>
       </ul>
     </div>
+    <button id="joueur-btn">Joueur</button>
+    <button id="admin-btn">Admin</button>
+  </div>
+
+  <!-- Joueur -->
+  <div id="joueur-screen" style="display:none;">
+    <h2>Bienvenue sur le Quiz 🎮</h2>
     <label for="teamname">Nom d’équipe :</label>
     <input id="teamname" type="text" placeholder="Votre équipe">
     <button id="start-btn">Commencer le quiz</button>
@@ -66,9 +65,10 @@
 
   <!-- Admin -->
   <div id="admin-screen" style="display:none;">
-    <h2>Résultats (Admin)</h2>
+    <h2>Résultats du quiz</h2>
     <input id="admin-password" type="password" placeholder="Mot de passe admin">
     <button id="validate-admin-btn">Valider</button>
+    <button id="refresh-btn" style="display:none;">Rafraîchir les scores</button>
     <button id="reset-btn" style="display:none;">Réinitialiser les résultats</button>
     <div id="admin-results" style="margin-top:20px;"></div>
   </div>
@@ -109,18 +109,28 @@
     const pass = document.getElementById('admin-password').value;
     if(pass === "100719") {
       document.getElementById('reset-btn').style.display='block';
+      document.getElementById('refresh-btn').style.display='block';
       chargerScores();
     } else {
       alert('Mot de passe incorrect.');
     }
   };
+  document.getElementById('refresh-btn').onclick = () => chargerScores();
   document.getElementById('reset-btn').onclick = () => {
-    if(confirm('Es-tu sûr de vouloir supprimer tous les résultats ?')) {
+    if (confirm('Es-tu sûr de vouloir supprimer tous les résultats ?')) {
       db.ref('scores/').remove().then(() => {
         document.getElementById('admin-results').innerHTML = '<p>Tous les résultats ont été supprimés.</p>';
       });
     }
   };
+  // Actualisation auto toutes les 10s
+  setInterval(() => {
+    if (document.getElementById('admin-screen').style.display !== 'none' &&
+        document.getElementById('refresh-btn').style.display !== 'none') {
+      chargerScores();
+    }
+  }, 10000);
+
   function afficherQuestion() {
     if (index >= questions.length) return afficherResultats();
     const q = questions[index];
@@ -133,6 +143,7 @@
       optionsDiv.appendChild(btn);
     });
   }
+
   function verifierReponse(choix) {
     const bonne = questions[index].answer;
     if (choix === bonne) score++;
@@ -140,11 +151,13 @@
     index++;
     afficherQuestion();
   }
+
   function envoyerResultat(teamName, score, reponsesUtilisateur) {
     db.ref('scores/').push({ teamName, score, answers: reponsesUtilisateur, timestamp: new Date().toISOString() })
       .then(() => console.log('✅ sauvegardé dans Firebase'))
       .catch((error) => console.error('❌ erreur:', error));
   }
+
   function afficherResultats() {
     title.style.display='none';
     optionsDiv.style.display='none';
@@ -155,6 +168,7 @@
       <p>Vos réponses ont été enregistrées.</p>
     `;
   }
+
   function chargerScores() {
     const container = document.getElementById('admin-results');
     container.innerHTML = '';
@@ -180,4 +194,3 @@
 
 </body>
 </html>
-
