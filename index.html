@@ -16,7 +16,7 @@
   .rules { background: #e0f7ff; padding: 10px; border-radius: 8px; margin-bottom: 16px; }
 </style>
 
-<!-- Firebase SDKs -->
+<!-- 🔽 Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script>
@@ -108,7 +108,7 @@
   }
 
   function envoyerResultat(teamName, score, reponsesUtilisateur) {
-    return db.ref('scores/').push({ teamName, score, answers: reponsesUtilisateur, timestamp: new Date().toISOString() })
+    firebase.database().ref('scores/').push({ teamName, score, answers: reponsesUtilisateur, timestamp: new Date().toISOString() })
       .then(() => console.log('✅ Résultat enregistré dans Firebase'))
       .catch((error) => console.error('❌ Erreur Firebase:', error));
   }
@@ -117,18 +117,16 @@
     title.style.display='none';
     optionsDiv.style.display='none';
     scoreContainer.style.display='block';
-    let html = `<h3>${teamName}, votre score : ${score} / ${questions.length}</h3><hr>`;
-    reponsesUtilisateur.forEach((r,i) => {
-      const estBon = r.choisi === r.bonne;
-      html += `<p><strong>${i+1}. ${r.question}</strong><br>
-               Votre réponse : ${r.options[r.choisi]} (${estBon ? "✅" : "❌"})<br>
-               Bonne réponse : ${r.options[r.bonne]}</p><hr>`;
-    });
 
-    // Enregistrer dans Firebase
+    // Envoie le résultat dans Firebase
     envoyerResultat(teamName, score, reponsesUtilisateur);
 
-    scoreContainer.innerHTML = html;
+    // Affiche un message neutre
+    scoreContainer.innerHTML = `
+      <h3>Merci d'avoir participé, ${teamName} ! 🎉</h3>
+      <p>Vos réponses ont bien été enregistrées.</p>
+      <p>(Le score sera communiqué plus tard par l'organisateur.)</p>
+    `;
   }
 </script>
 
