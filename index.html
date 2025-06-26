@@ -65,19 +65,6 @@
   </style>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDxfxlXSJNmV_LOTMfWDPfh5WEMGZiU0cw",
-      authDomain: "quiz-cmi.firebaseapp.com",
-      databaseURL: "https://quiz-cmi-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "quiz-cmi",
-      storageBucket: "quiz-cmi.appspot.com",
-      messagingSenderId: "442390350641",
-      appId: "1:442390350641:web:373dabe481fb9242147e10"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-  </script>
 </head>
 <body>
   <div id="container">
@@ -117,7 +104,19 @@
   </div>
 
   <script>
-    window.onload = function () {
+    document.addEventListener("DOMContentLoaded", function () {
+      const firebaseConfig = {
+        apiKey: "AIzaSyDxfxlXSJNmV_LOTMfWDPfh5WEMGZiU0cw",
+        authDomain: "quiz-cmi.firebaseapp.com",
+        databaseURL: "https://quiz-cmi-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "quiz-cmi",
+        storageBucket: "quiz-cmi.appspot.com",
+        messagingSenderId: "442390350641",
+        appId: "1:442390350641:web:373dabe481fb9242147e10"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.database();
+
       const questions = [
         { question: "Capitale de la France ?", options: ["Paris", "Lyon", "Nice"], answer: 0 },
         { question: "2 + 2 = ?", options: ["3", "4", "5"], answer: 1 },
@@ -225,7 +224,7 @@
           chargerScores();
         }
       }, 10000);
-    };
+    });
   </script>
 </body>
 </html>
