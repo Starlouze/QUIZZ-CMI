@@ -43,6 +43,7 @@
       <ul>
         <li>Travaillez en équipe.</li>
         <li>1 réponse par question.</li>
+        <li>Bonne chance à tous !</li>
       </ul>
     </div>
     <label for="teamname">Nom d’équipe :</label>
@@ -61,6 +62,7 @@
     <h2>Résultats du quiz</h2>
     <input id="admin-password" type="password" placeholder="Mot de passe admin">
     <button id="validate-admin-btn">Valider</button>
+    <button id="reset-btn" style="display:none;">Réinitialiser les résultats</button>
     <div id="admin-results" style="margin-top:20px;"></div>
   </div>
 </div>
@@ -96,8 +98,20 @@
 
   document.getElementById('validate-admin-btn').onclick = () => {
     const pass = document.getElementById('admin-password').value;
-    if(pass === "motdepasse123") chargerScores();
-    else alert('Mot de passe incorrect.');
+    if(pass === "100719") {
+      document.getElementById('reset-btn').style.display='block';
+      chargerScores();
+    } else {
+      alert('Mot de passe incorrect.');
+    }
+  }
+
+  document.getElementById('reset-btn').onclick = () => {
+    if (confirm('Es-tu sûr de vouloir supprimer tous les résultats ?')) {
+      db.ref('scores/').remove().then(() => {
+        document.getElementById('admin-results').innerHTML = '<p>Tous les résultats ont été supprimés.</p>';
+      });
+    }
   }
 
   function afficherQuestion() {
@@ -151,7 +165,9 @@
           <p><strong>${i+1}. ${data.teamName}</strong> — Score: ${data.score}</p>
           <details><summary>Voir les réponses</summary>
             ${data.answers.map((ans,j) => `
-              <p>${j+1}. ${ans.question}<br>Choisi: ${ans.options[ans.choisi]}<br>Bonne réponse: ${ans.options[ans.bonne]}</p>`).join('')}
+              <p>${j+1}. ${ans.question}<br>
+              Choisi: ${ans.options[ans.choisi]}<br>
+              Bonne réponse: ${ans.options[ans.bonne]}</p>`).join('')}
           </details>
         `;
       });
