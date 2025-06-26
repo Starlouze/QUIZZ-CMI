@@ -12,10 +12,26 @@
   input { padding: 10px; width: 100%; margin: 8px 0 16px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
   button { padding: 12px; width: 100%; border: none; background: #66a6ff; color: white; border-radius: 6px; cursor: pointer; font-size: 1rem; margin: 6px 0; }
   button:hover { background: #4f8dde; }
-  .score { text-align: left; }
   hr { border: none; border-top: 1px solid #ddd; margin: 12px 0; }
   .rules { background: #e0f7ff; padding: 10px; border-radius: 8px; margin-bottom: 16px; }
 </style>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-database.js"></script>
+<script>
+  // 🔽 Mets ton config ici :
+  const firebaseConfig = {
+    apiKey: "AI...XXX",
+    authDomain: "quiz-cmi.firebaseapp.com",
+    databaseURL: "https://quiz-cmi.firebaseio.com",
+    projectId: "quiz-cmi",
+    storageBucket: "quiz-cmi.appspot.com",
+    messagingSenderId: "...",
+    appId: "..."
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+</script>
 </head>
 <body>
 
@@ -58,10 +74,7 @@
 
   document.getElementById('start-btn').onclick = () => {
     teamName = document.getElementById('teamname').value.trim();
-    if(!teamName) {
-      alert('Veuillez entrer le nom de votre équipe.');
-      return;
-    }
+    if(!teamName) return alert('Veuillez entrer le nom de votre équipe.');
     document.getElementById('start-screen').style.display='none';
     title.style.display='block';
     optionsDiv.style.display='block';
@@ -92,6 +105,17 @@
     afficherQuestion();
   }
 
+  function envoyerResultat(teamName, score, reponsesUtilisateur) {
+    firebase.database().ref('scores/').push({
+      teamName: teamName,
+      score: score,
+      answers: reponsesUtilisateur,
+      timestamp: new Date().toISOString()
+    })
+    .then(() => console.log('✅ Résultat enregistré dans Firebase'))
+    .catch((error) => console.error('❌ Erreur Firebase:', error));
+  }
+
   function afficherResultats() {
     title.style.display='none';
     optionsDiv.style.display='none';
@@ -104,11 +128,8 @@
                Bonne réponse : ${r.options[r.bonne]}</p><hr>`;
     });
 
-    // 🔽 Lien vers le formulaire pré-rempli :
-    const prefillUrl = `https://docs.google.com/forms/d/e/1FAIpQLSf89ZbdTaV_nUbd2wJEdE5lNHzianr2gU_EHKk1qP_TEi-Uqw/viewform?entry.967252732=${encodeURIComponent(teamName)}&entry.777936968=${score}`;
-    html += `<p style="text-align:center;">
-               <a href="${prefillUrl}" target="_blank">Clique ici pour envoyer ton résultat 📝</a>
-             </p>`;
+    // 🔽 Envoie le résultat dans Firebase
+    envoyerResultat(teamName, score, reponsesUtilisateur);
 
     scoreContainer.innerHTML = html;
   }
@@ -116,4 +137,3 @@
 
 </body>
 </html>
-
