@@ -16,6 +16,7 @@
   .rules { background: #e0f7ff; padding: 10px; border-radius: 8px; margin-bottom: 16px; }
 </style>
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script>
@@ -35,9 +36,16 @@
 <body>
 
 <div id="container">
-  <!-- Écran d’accueil -->
+  <!-- Accueil -->
   <div id="home-screen">
-    <h2>Bienvenue sur le Quiz 🎉</h2>
+    <h2>Quiz 🎉</h2>
+    <button id="joueur-btn">Joueur</button>
+    <button id="admin-btn">Admin</button>
+  </div>
+
+  <!-- Joueur -->
+  <div id="joueur-screen" style="display:none;">
+    <h2>Bienvenue sur le Quiz 🎮</h2>
     <div class="rules">
       <h3>Règles :</h3>
       <ul>
@@ -49,17 +57,16 @@
     <label for="teamname">Nom d’équipe :</label>
     <input id="teamname" type="text" placeholder="Votre équipe">
     <button id="start-btn">Commencer le quiz</button>
-    <button id="admin-btn">Accéder aux résultats (Admin)</button>
   </div>
 
-  <!-- Écran Quiz -->
+  <!-- Quiz -->
   <h2 id="question-title" style="display:none;"></h2>
   <div id="options" style="display:none;"></div>
   <div id="score-container" style="display:none;"></div>
 
-  <!-- Écran Admin -->
+  <!-- Admin -->
   <div id="admin-screen" style="display:none;">
-    <h2>Résultats du quiz</h2>
+    <h2>Résultats (Admin)</h2>
     <input id="admin-password" type="password" placeholder="Mot de passe admin">
     <button id="validate-admin-btn">Valider</button>
     <button id="reset-btn" style="display:none;">Réinitialiser les résultats</button>
@@ -82,20 +89,22 @@
   const optionsDiv = document.getElementById('options');
   const scoreContainer = document.getElementById('score-container');
 
-  document.getElementById('start-btn').onclick = () => {
-    teamName = document.getElementById('teamname').value.trim();
-    if(!teamName) return alert('Veuillez entrer le nom de votre équipe.');
+  document.getElementById('joueur-btn').onclick = () => {
     document.getElementById('home-screen').style.display='none';
-    title.style.display='block';
-    optionsDiv.style.display='block';
-    afficherQuestion();
-  }
-
+    document.getElementById('joueur-screen').style.display='block';
+  };
   document.getElementById('admin-btn').onclick = () => {
     document.getElementById('home-screen').style.display='none';
     document.getElementById('admin-screen').style.display='block';
-  }
-
+  };
+  document.getElementById('start-btn').onclick = () => {
+    teamName = document.getElementById('teamname').value.trim();
+    if(!teamName) return alert('Veuillez entrer le nom de votre équipe.');
+    document.getElementById('joueur-screen').style.display='none';
+    title.style.display='block';
+    optionsDiv.style.display='block';
+    afficherQuestion();
+  };
   document.getElementById('validate-admin-btn').onclick = () => {
     const pass = document.getElementById('admin-password').value;
     if(pass === "100719") {
@@ -104,16 +113,14 @@
     } else {
       alert('Mot de passe incorrect.');
     }
-  }
-
+  };
   document.getElementById('reset-btn').onclick = () => {
-    if (confirm('Es-tu sûr de vouloir supprimer tous les résultats ?')) {
+    if(confirm('Es-tu sûr de vouloir supprimer tous les résultats ?')) {
       db.ref('scores/').remove().then(() => {
         document.getElementById('admin-results').innerHTML = '<p>Tous les résultats ont été supprimés.</p>';
       });
     }
-  }
-
+  };
   function afficherQuestion() {
     if (index >= questions.length) return afficherResultats();
     const q = questions[index];
@@ -126,7 +133,6 @@
       optionsDiv.appendChild(btn);
     });
   }
-
   function verifierReponse(choix) {
     const bonne = questions[index].answer;
     if (choix === bonne) score++;
@@ -134,13 +140,11 @@
     index++;
     afficherQuestion();
   }
-
   function envoyerResultat(teamName, score, reponsesUtilisateur) {
     db.ref('scores/').push({ teamName, score, answers: reponsesUtilisateur, timestamp: new Date().toISOString() })
       .then(() => console.log('✅ sauvegardé dans Firebase'))
       .catch((error) => console.error('❌ erreur:', error));
   }
-
   function afficherResultats() {
     title.style.display='none';
     optionsDiv.style.display='none';
@@ -151,14 +155,13 @@
       <p>Vos réponses ont été enregistrées.</p>
     `;
   }
-
   function chargerScores() {
     const container = document.getElementById('admin-results');
     container.innerHTML = '';
     db.ref('scores/').once('value').then((snapshot) => {
       let allScores = [];
       snapshot.forEach((child) => allScores.push(child.val()));
-      allScores.sort((a,b) => b.score - a.score); // Tri par score
+      allScores.sort((a,b) => b.score - a.score); 
       allScores.forEach((data,i) => {
         container.innerHTML += `
           <hr>
@@ -177,3 +180,4 @@
 
 </body>
 </html>
+
