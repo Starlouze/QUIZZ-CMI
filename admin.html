@@ -1,114 +1,25 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin - Résultats du quiz</title>
-<style>
-  body { font-family: Arial,sans-serif; background: linear-gradient(135deg, #89f7fe, #66a6ff); padding: 24px; }
-  h2 { text-align: center; color: #333; }
-  #password-screen, #scores-container { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); max-width: 700px; margin: 0 auto; }
-  input, button { padding: 10px; border-radius: 6px; margin-top: 10px; width: 100%; }
-  button { background: #66a6ff; color: white; border: none; cursor: pointer; font-size: 1rem; }
-  button:hover { background: #4f8dde; }
-  .entry { padding: 12px; border-bottom: 1px solid #ddd; }
-  .team { font-weight: bold; color: #333; }
-  .score { color: #007bff; }
-  details { background: #f0f8ff; padding: 8px; border-radius: 6px; margin-top: 6px; }
-  summary { cursor: pointer; font-weight: bold; }
-  #export-btn { background: #28a745; }
-  #export-btn:hover { background: #218838; }
-</style>
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyDxfxlXSJNmV_LOTMfWDPfh5WEMGZiU0cw",
-    authDomain: "quiz-cmi.firebaseapp.com",
-    databaseURL: "https://quiz-cmi-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "quiz-cmi",
-    storageBucket: "quiz-cmi.appspot.com",
-    messagingSenderId: "442390350641",
-    appId: "1:442390350641:web:373dabe481fb9242147e10"
-  };
-  firebase.initializeApp(firebaseConfig);  
-  const db = firebase.database();
-</script>
+<title>Test mot de passe</title>
 </head>
 <body>
 
-<h2>Résultats du quiz</h2>
-
-<div id="password-screen">
-  <p>Mot de passe :</p>
-  <input id="password" type="password" placeholder="Entrez le mot de passe">
-  <button onclick="checkPassword()">Valider</button>
-</div>
-
-<div id="scores-container" style="display:none;">
-  <button id="export-btn" onclick="exportCSV()">Exporter en CSV ⬇️</button>
-  <div id="scores-list"></div>
-</div>
+<h2>Test mot de passe admin</h2>
+<input id="admin-password" type="password" placeholder="Mot de passe admin">
+<button id="validate-admin-btn">Valider</button>
 
 <script>
-  const correctPassword = "motdepasse123";
-  let allScores = [];
-
-  function checkPassword() {
-    const pass = document.getElementById('password').value;
-    if (pass === correctPassword) {
-      document.getElementById('password-screen').style.display='none';
-      document.getElementById('scores-container').style.display='block';
-      chargerScores();
-    } else {
-      alert('Mot de passe incorrect.');
-    }
+document.getElementById('validate-admin-btn').onclick = () => {
+  const pass = document.getElementById('admin-password').value;
+  console.log('Mot de passe saisi :', pass); // 🔍 Vérifie ici dans la console
+  if (pass === "100719") {
+    alert('✅ OK !');
+  } else {
+    alert('❌ Mauvais mot de passe');
   }
-
-  function chargerScores() {
-    db.ref('scores/').once('value').then((snapshot) => {
-      allScores = [];
-      snapshot.forEach((child) => allScores.push(child.val()));
-      allScores.sort((a,b) => b.score - a.score); // Tri par score desc
-      afficherScores();
-    })
-  }
-
-  function afficherScores() {
-    const container = document.getElementById('scores-list');
-    container.innerHTML = '';
-    allScores.forEach((data,i) => {
-      const div = document.createElement('div');
-      div.classList.add('entry');
-      div.innerHTML = `
-        <p class="team">${i+1}. ${data.teamName}</p>
-        <p class="score">Score : ${data.score}</p>
-        <details>
-          <summary>Voir les réponses</summary>
-          ${data.answers.map((ans,j) => `
-            <p>${j+1}. ${ans.question}<br>
-               Réponse choisie : ${ans.options[ans.choisi]}<br>
-               Bonne réponse : ${ans.options[ans.bonne]}</p>`).join('')}
-        </details>
-      `;
-      container.appendChild(div);
-    })
-  }
-
-  function exportCSV() {
-    let csv = "Nom d'équipe,Score,Date\n";
-    allScores.forEach((data) => {
-      csv += `${data.teamName},${data.score},${new Date(data.timestamp).toLocaleString()}\n`;
-    });
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = "scores-quiz.csv";
-    a.click();
-  }
+};
 </script>
 
 </body>
