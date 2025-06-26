@@ -1,85 +1,10 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quiz + Admin</title>
-<style>
-  body { font-family: Arial,sans-serif; background: linear-gradient(135deg,#89f7fe,#66a6ff); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-  #container { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); max-width: 500px; width: 90%; }
-  h2, h3 { text-align: center; color: #333; }
-  label { font-weight: bold; color: #555; }
-  input { padding: 10px; width: 100%; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
-  button { padding: 12px; width: 100%; border: none; background: #66a6ff; color: white; border-radius: 6px; cursor: pointer; font-size: 1rem; margin: 6px 0; }
-  button:hover { background: #4f8dde; }
-  hr { border: none; border-top: 1px solid #ddd; margin: 12px 0; }
-  .rules { background: #e0f7ff; padding: 10px; border-radius: 8px; margin-bottom: 16px; }
-</style>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyDxfxlXSJNmV_LOTMfWDPfh5WEMGZiU0cw",
-    authDomain: "quiz-cmi.firebaseapp.com",
-    databaseURL: "https://quiz-cmi-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "quiz-cmi",
-    storageBucket: "quiz-cmi.appspot.com",
-    messagingSenderId: "442390350641",
-    appId: "1:442390350641:web:373dabe481fb9242147e10"
-  };
-  firebase.initializeApp(firebaseConfig);  
-  const db = firebase.database();
-</script>
-</head>
-<body>
-
-<div id="container">
-  <!-- Accueil -->
-  <div id="home-screen">
-    <h2>Bienvenue sur le Quiz 🎉</h2>
-    <div class="rules">
-      <h3>Règles :</h3>
-      <ul>
-        <li>Travaillez en équipe.</li>
-        <li>1 réponse par question.</li>
-        <li>Bonne chance à tous !</li>
-      </ul>
-    </div>
-    <button id="joueur-btn">Joueur</button>
-    <button id="admin-btn">Admin</button>
-  </div>
-
-  <!-- Joueur -->
-  <div id="joueur-screen" style="display:none;">
-    <h2>Bienvenue sur le Quiz 🎮</h2>
-    <label for="teamname">Nom d’équipe :</label>
-    <input id="teamname" type="text" placeholder="Votre équipe">
-    <button id="start-btn">Commencer le quiz</button>
-  </div>
-
-  <!-- Quiz -->
-  <h2 id="question-title" style="display:none;"></h2>
-  <div id="options" style="display:none;"></div>
-  <div id="score-container" style="display:none;"></div>
-
-  <!-- Admin -->
-  <div id="admin-screen" style="display:none;">
-    <h2>Résultats du quiz</h2>
-    <input id="admin-password" type="password" placeholder="Mot de passe admin">
-    <button id="validate-admin-btn">Valider</button>
-    <button id="refresh-btn" style="display:none;">Rafraîchir les scores</button>
-    <button id="reset-btn" style="display:none;">Réinitialiser les résultats</button>
-    <div id="admin-results" style="margin-top:20px;"></div>
-  </div>
-</div>
-
 <script>
   const questions = [
-    { question: "Capitale de la France ?", options: ["Paris","Lyon","Nice"], answer: 0 },
-    { question: "2 + 2 = ?", options: ["3","4","5"], answer: 1 },
-    { question: "Couleur du ciel par temps clair ?", options: ["Rouge","Bleu","Vert"], answer: 1 }
+    { question: "Capitale de la France ?", options: ["Paris", "Lyon", "Nice"], answer: 0 },
+    { question: "2 + 2 = ?", options: ["3", "4", "5"], answer: 1 },
+    { question: "Couleur du ciel par temps clair ?", options: ["Rouge", "Bleu", "Vert"], answer: 1 }
   ];
+
   let index = 0;
   let score = 0;
   let teamName = '';
@@ -90,32 +15,40 @@
   const scoreContainer = document.getElementById('score-container');
 
   document.getElementById('joueur-btn').onclick = () => {
-    document.getElementById('home-screen').style.display='none';
-    document.getElementById('joueur-screen').style.display='block';
+    document.getElementById('home-screen').style.display = 'none';
+    document.getElementById('joueur-screen').style.display = 'block';
   };
+
   document.getElementById('admin-btn').onclick = () => {
-    document.getElementById('home-screen').style.display='none';
-    document.getElementById('admin-screen').style.display='block';
+    document.getElementById('home-screen').style.display = 'none';
+    document.getElementById('admin-screen').style.display = 'block';
   };
+
   document.getElementById('start-btn').onclick = () => {
     teamName = document.getElementById('teamname').value.trim();
-    if(!teamName) return alert('Veuillez entrer le nom de votre équipe.');
-    document.getElementById('joueur-screen').style.display='none';
-    title.style.display='block';
-    optionsDiv.style.display='block';
+    if (!teamName) return alert('Veuillez entrer le nom de votre équipe.');
+    document.getElementById('joueur-screen').style.display = 'none';
+    title.style.display = 'block';
+    optionsDiv.style.display = 'block';
     afficherQuestion();
   };
+
   document.getElementById('validate-admin-btn').onclick = () => {
     const pass = document.getElementById('admin-password').value;
-    if(pass === "100719") {
-      document.getElementById('reset-btn').style.display='block';
-      document.getElementById('refresh-btn').style.display='block';
+    if (pass === "100719") {
+      document.getElementById('reset-btn').style.display = 'block';
+      document.getElementById('refresh-btn').style.display = 'block';
       chargerScores();
     } else {
       alert('Mot de passe incorrect.');
     }
   };
-  document.getElementById('refresh-btn').onclick = () => chargerScores();
+
+  document.getElementById('refresh-btn').onclick = () => {
+    console.log("🔁 Rafraîchissement manuel");
+    chargerScores();
+  };
+
   document.getElementById('reset-btn').onclick = () => {
     if (confirm('Es-tu sûr de vouloir supprimer tous les résultats ?')) {
       db.ref('scores/').remove().then(() => {
@@ -123,20 +56,13 @@
       });
     }
   };
-  // Actualisation auto toutes les 10s
-  setInterval(() => {
-    if (document.getElementById('admin-screen').style.display !== 'none' &&
-        document.getElementById('refresh-btn').style.display !== 'none') {
-      chargerScores();
-    }
-  }, 10000);
 
   function afficherQuestion() {
     if (index >= questions.length) return afficherResultats();
     const q = questions[index];
     title.innerText = q.question;
     optionsDiv.innerHTML = '';
-    q.options.forEach((opt,i) => {
+    q.options.forEach((opt, i) => {
       const btn = document.createElement('button');
       btn.innerText = opt;
       btn.onclick = () => verifierReponse(i);
@@ -147,21 +73,31 @@
   function verifierReponse(choix) {
     const bonne = questions[index].answer;
     if (choix === bonne) score++;
-    reponsesUtilisateur.push({ question: questions[index].question, bonne, choisi: choix, options: questions[index].options });
+    reponsesUtilisateur.push({
+      question: questions[index].question,
+      bonne,
+      choisi: choix,
+      options: questions[index].options
+    });
     index++;
     afficherQuestion();
   }
 
   function envoyerResultat(teamName, score, reponsesUtilisateur) {
-    db.ref('scores/').push({ teamName, score, answers: reponsesUtilisateur, timestamp: new Date().toISOString() })
-      .then(() => console.log('✅ sauvegardé dans Firebase'))
-      .catch((error) => console.error('❌ erreur:', error));
+    db.ref('scores/').push({
+      teamName,
+      score,
+      answers: reponsesUtilisateur,
+      timestamp: new Date().toISOString()
+    })
+      .then(() => console.log('✅ Résultat enregistré dans Firebase'))
+      .catch((error) => console.error('❌ Erreur Firebase:', error));
   }
 
   function afficherResultats() {
-    title.style.display='none';
-    optionsDiv.style.display='none';
-    scoreContainer.style.display='block';
+    title.style.display = 'none';
+    optionsDiv.style.display = 'none';
+    scoreContainer.style.display = 'block';
     envoyerResultat(teamName, score, reponsesUtilisateur);
     scoreContainer.innerHTML = `
       <h3>Merci d'avoir participé, ${teamName} ! 🎉</h3>
@@ -170,19 +106,20 @@
   }
 
   function chargerScores() {
+    console.log("🔄 Rafraîchissement automatique des scores...");
     const container = document.getElementById('admin-results');
     container.innerHTML = '';
     db.ref('scores/').once('value').then((snapshot) => {
       let allScores = [];
       snapshot.forEach((child) => allScores.push(child.val()));
-      allScores.sort((a,b) => b.score - a.score); 
-      allScores.forEach((data,i) => {
+      allScores.sort((a, b) => b.score - a.score);
+      allScores.forEach((data, i) => {
         container.innerHTML += `
           <hr>
-          <p><strong>${i+1}. ${data.teamName}</strong> — Score: ${data.score}</p>
+          <p><strong>${i + 1}. ${data.teamName}</strong> — Score: ${data.score}</p>
           <details><summary>Voir les réponses</summary>
-            ${data.answers.map((ans,j) => `
-              <p>${j+1}. ${ans.question}<br>
+            ${data.answers.map((ans, j) => `
+              <p>${j + 1}. ${ans.question}<br>
               Choisi: ${ans.options[ans.choisi]}<br>
               Bonne réponse: ${ans.options[ans.bonne]}</p>`).join('')}
           </details>
@@ -190,7 +127,14 @@
       });
     });
   }
-</script>
 
-</body>
-</html>
+  // Rafraîchissement auto toutes les 10s si admin visible
+  setInterval(() => {
+    if (
+      document.getElementById('admin-screen').style.display !== 'none' &&
+      document.getElementById('refresh-btn').style.display !== 'none'
+    ) {
+      chargerScores();
+    }
+  }, 10000);
+</script>
