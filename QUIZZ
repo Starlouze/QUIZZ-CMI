@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz personnalisé</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+  #quiz-container { background: white; padding: 20px; border-radius: 8px; max-width: 500px; margin: auto; }
+  h2 { margin-top: 0; }
+  button { padding: 10px; margin: 5px 0; width: 100%; cursor: pointer; }
+  label, input { font-size: 1em; }
+  .score { font-size: 1.2em; text-align: center; }
+</style>
+</head>
+<body>
+
+<div id="quiz-container">
+  <div id="start-screen">
+    <label for="username">Ton nom :</label><br>
+    <input id="username" type="text" placeholder="Prénom/Nom"><br><br>
+    <button id="start-btn">Commencer le quiz</button>
+  </div>
+
+  <h2 id="question-title" style="display:none;"></h2>
+  <div id="options" style="display:none;"></div>
+  <div id="score-container" class="score" style="display:none;"></div>
+</div>
+
+<script>
+  // 🔽 Modifie ici les questions 🔽
+  const questions = [
+    { question: "Capitale de la France ?", options: ["Paris","Lyon","Nice"], answer: 0 },
+    { question: "2 + 2 = ?", options: ["3","4","5"], answer: 1 },
+    { question: "Couleur du ciel par temps clair ?", options: ["Rouge","Bleu","Vert"], answer: 1 }
+  ];
+  // 🔼 Tu peux ajouter/retirer des questions ici 🔼
+
+  let index = 0;
+  let score = 0;
+  let userName = '';
+  let reponsesUtilisateur = [];
+
+  const title = document.getElementById('question-title');
+  const optionsDiv = document.getElementById('options');
+  const scoreContainer = document.getElementById('score-container');
+
+  document.getElementById('start-btn').onclick = () => {
+    userName = document.getElementById('username').value.trim();
+    if(!userName) {
+      alert('Entre ton nom avant de commencer le quiz.');
+      return;
+    }
+    document.getElementById('start-screen').style.display='none';
+    title.style.display='block';
+    optionsDiv.style.display='block';
+    afficherQuestion();
+  }
+
+  function afficherQuestion() {
+    if (index >= questions.length) {
+      afficherResultats();
+      return;
+    }
+    const q = questions[index];
+    title.innerText = q.question;
+    optionsDiv.innerHTML = '';
+    q.options.forEach((opt,i) => {
+      const btn = document.createElement('button');
+      btn.innerText = opt;
+      btn.onclick = () => verifierReponse(i);
+      optionsDiv.appendChild(btn);
+    });
+  }
+
+  function verifierReponse(choix) {
+    const bonne = questions[index].answer;
+    if (choix === bonne) score++;
+    reponsesUtilisateur.push({ question: questions[index].question, bonne, choisi: choix, options: questions[index].options });
+    index++;
+    afficherQuestion();
+  }
+
+  function afficherResultats() {
+    title.style.display='none';
+    optionsDiv.style.display='none';
+    scoreContainer.style.display='block';
+    let html = `<h3>${userName}, ton score : ${score} / ${questions.length}</h3><hr>`;
+    reponsesUtilisateur.forEach((r,i) => {
+      const estBon = r.choisi === r.bonne;
+      html += `<p>${i+1}. ${r.question}<br>
+               <strong>Ta réponse :</strong> ${r.options[r.choisi]} (${estBon ? "✅" : "❌"})<br>
+               <strong>Bonne réponse :</strong> ${r.options[r.bonne]}</p><hr>`;
+    });
+    scoreContainer.innerHTML = html;
+  }
+</script>
+
+</body>
+</html>
