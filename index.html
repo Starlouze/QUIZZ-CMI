@@ -1,74 +1,76 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quiz + Admin</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUIZZ CMI</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body>
   <div id="container">
     <div id="home-screen">
-      <h2>Bienvenue sur le Quiz 🎉</h2>
-      <div class="rules">
-        <h3>Règles :</h3>
-        <ul>
-          <li>Travaillez en équipe.</li>
-          <li>1 réponse par question.</li>
-          <li>Bonne chance à tous !</li>
-        </ul>
-      </div>
+      <h2>QUIZZ CMI</h2>
       <button id="joueur-btn">Joueur</button>
       <button id="admin-btn">Admin</button>
     </div>
 
-    <div id="joueur-screen" style="display:none;">
-      <h2>Bienvenue sur le Quiz 🎮</h2>
-      <label for="teamname">Nom d’équipe :</label>
-      <input id="teamname" type="text" placeholder="Votre équipe">
+    <div id="joueur-screen" style="display:none">
+      <h3>Bienvenue Joueur</h3>
+      <div class="rules">
+        <strong>Règles :</strong> <br>
+        - Répondez à chaque question. <br>
+        - Les bonnes réponses vous rapportent 1 point. <br>
+        - Une seule tentative par question. <br>
+      </div>
+      <label>Nom de l'équipe :</label>
+      <input type="text" id="teamname">
       <button id="start-btn">Commencer le quiz</button>
-      <button onclick="location.reload()">🏠 Accueil</button>
     </div>
 
-    <h2 id="question-title" style="display:none;"></h2>
-    <div id="options" style="display:none;"></div>
-    <div id="score-container" style="display:none;"></div>
+    <div id="quiz-screen" style="display:none">
+      <h3 id="question-title"></h3>
+      <div id="options"></div>
+      <div id="score-container" style="display:none;"></div>
+    </div>
 
-    <div id="admin-screen" style="display:none;">
-      <h2>Résultats du quiz</h2>
-      <input id="admin-password" type="password" placeholder="Mot de passe admin">
+    <div id="admin-screen" style="display:none">
+      <h3>Espace Admin</h3>
+      <label>Mot de passe :</label>
+      <input type="password" id="admin-password">
       <button id="validate-admin-btn">Valider</button>
-      <button id="refresh-btn" style="display:none;">Rafraîchir les scores</button>
-      <button id="reset-btn" style="display:none;">Réinitialiser les résultats</button>
-      <button onclick="location.reload()">🏠 Accueil</button>
+      <button id="refresh-btn" style="display:none;">🔄 Rafraîchir les scores</button>
+      <button id="reset-btn" style="display:none;">🗑 Réinitialiser les scores</button>
 
-      <div id="admin-results" style="margin-top:20px;"></div>
+      <div id="admin-results" style="margin-top: 20px;"></div>
 
-      <div id="edit-questions" style="display:none; margin-top: 20px;">
-        <h3>Ajouter une question</h3>
-        <textarea id="new-question" placeholder="Texte de la question"></textarea>
+      <div id="edit-questions" style="display:none">
+        <h4>Ajouter une question</h4>
+        <label>Texte :</label>
+        <textarea id="new-question"></textarea>
+
+        <label>Type :</label>
         <select id="question-type">
           <option value="choix">Choix multiple</option>
           <option value="libre">Réponse libre</option>
         </select>
-        <div id="options-inputs">
-          <input class="option-input" placeholder="Option 1">
-          <input class="option-input" placeholder="Option 2">
-          <input class="option-input" placeholder="Option 3">
-          <input class="option-input" placeholder="Option 4">
-          <input class="option-input" placeholder="Option 5">
-          <input id="correct-answer" placeholder="Indice bonne réponse (0 à 4)">
-        </div>
-        <button id="add-question-btn">Ajouter la question</button>
 
-        <h3>Modifier ou supprimer les questions</h3>
+        <div id="choix-options">
+          <label>Option 1 :</label><input class="option-input" type="text">
+          <label>Option 2 :</label><input class="option-input" type="text">
+          <label>Option 3 :</label><input class="option-input" type="text">
+          <label>Option 4 :</label><input class="option-input" type="text">
+          <label>Numéro de la bonne réponse (0 à 3) :</label><input type="number" id="correct-answer" min="0" max="4">
+        </div>
+
+        <button id="add-question-btn">➕ Ajouter la question</button>
+
+        <h4>Questions existantes :</h4>
         <div id="questions-list"></div>
       </div>
     </div>
   </div>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
