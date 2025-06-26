@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Résultats du Quiz</title>
+<style>
+  body { font-family: Arial,sans-serif; padding: 24px; background: #f0f8ff; }
+  h2 { text-align: center; }
+  .score-list { max-width: 600px; margin: 24px auto; background: white; padding: 24px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+  .entry { padding: 12px; border-bottom: 1px solid #ddd; }
+  .entry:last-child { border-bottom: none; }
+  .team { font-weight: bold; color: #333; }
+  .score { color: #007bff; }
+</style>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDxfxlXSJNmV_LOTMfWDPfh5WEMGZiU0cw",
+    authDomain: "quiz-cmi.firebaseapp.com",
+    databaseURL: "https://quiz-cmi-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "quiz-cmi",
+    storageBucket: "quiz-cmi.appspot.com",
+    messagingSenderId: "442390350641",
+    appId: "1:442390350641:web:373dabe481fb9242147e10",
+    measurementId: "G-J38H6PLV06"
+  };
+  firebase.initializeApp(firebaseConfig);  
+  const db = firebase.database();
+</script>
+</head>
+<body>
+
+<h2>Résultats du quiz</h2>
+<div id="password-screen" style="text-align:center;">
+  <p>Mot de passe :</p>
+  <input id="password" type="password">
+  <button onclick="checkPassword()">Valider</button>
+</div>
+<div id="scores-container" class="score-list" style="display:none;"></div>
+
+<script>
+  const correctPassword = "10072019";
+
+  function checkPassword() {
+    const pass = document.getElementById('password').value;
+    if (pass === correctPassword) {
+      document.getElementById('password-screen').style.display='none';
+      document.getElementById('scores-container').style.display='block';
+      chargerScores();
+    } else {
+      alert('Mot de passe incorrect.');
+    }
+  }
+
+  function chargerScores() {
+    db.ref('scores/').once('value').then((snapshot) => {
+      const container = document.getElementById('scores-container');
+      container.innerHTML = '';
+      snapshot.forEach((child) => {
+        const data = child.val();
+        const div = document.createElement('div');
+        div.classList.add('entry');
+        div.innerHTML = `
+          <p class="team">${data.teamName}</p>
+          <p class="score">Score : ${data.score}</p>
+          <details>
+            <summary>Voir les réponses</summary>
+            ${data.answers.map((ans,i) => `
+              <p>${i+1}. ${ans.question}<br>
+                 Réponse choisie : ${ans.options[ans.choisi]}<br>
+                 Bonne réponse : ${ans.options[ans.bonne]}</p>`).join('')}
+          </details>
+          <hr>
+        `;
+        container.appendChild(div);
+      });
+    })
+  }
+</script>
+
+</body>
+</html>
