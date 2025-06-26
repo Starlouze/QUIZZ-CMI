@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quiz personnalisé</title>
+<title>Quiz + Admin</title>
 <style>
   body { font-family: Arial,sans-serif; background: linear-gradient(135deg,#89f7fe,#66a6ff); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-  #quiz-container { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); max-width: 500px; width: 90%; }
+  #container { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); max-width: 500px; width: 90%; }
   h2, h3 { text-align: center; color: #333; }
   label { font-weight: bold; color: #555; }
   input { padding: 10px; width: 100%; margin: 8px 0 16px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
@@ -15,12 +15,9 @@
   hr { border: none; border-top: 1px solid #ddd; margin: 12px 0; }
   .rules { background: #e0f7ff; padding: 10px; border-radius: 8px; margin-bottom: 16px; }
 </style>
-
-<!-- 🔽 Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script>
-  // 🔽 Ton config Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyDxfxlXSJNmV_LOTMfWDPfh5WEMGZiU0cw",
     authDomain: "quiz-cmi.firebaseapp.com",
@@ -28,8 +25,7 @@
     projectId: "quiz-cmi",
     storageBucket: "quiz-cmi.appspot.com",
     messagingSenderId: "442390350641",
-    appId: "1:442390350641:web:373dabe481fb9242147e10",
-    measurementId: "G-J38H6PLV06"
+    appId: "1:442390350641:web:373dabe481fb9242147e10"
   };
   firebase.initializeApp(firebaseConfig);  
   const db = firebase.database();
@@ -37,8 +33,9 @@
 </head>
 <body>
 
-<div id="quiz-container">
-  <div id="start-screen">
+<div id="container">
+  <!-- Écran d’accueil -->
+  <div id="home-screen">
     <h2>Bienvenue sur le Quiz 🎉</h2>
     <div class="rules">
       <h3>Règles du quiz :</h3>
@@ -48,14 +45,26 @@
         <li>Bonne chance à tous !</li>
       </ul>
     </div>
-    <label for="teamname">Nom d’équipe :</label>
-    <input id="teamname" type="text" placeholder="Votre équipe">
-    <button id="start-btn">Commencer le quiz</button>
+    <button id="quiz-btn">Commencer le quiz</button>
+    <button id="admin-btn">Accéder aux résultats (Admin)</button>
   </div>
 
-  <h2 id="question-title" style="display:none;"></h2>
-  <div id="options" style="display:none;"></div>
-  <div id="score-container" class="score" style="display:none;"></div>
+  <!-- Écran Quiz -->
+  <div id="quiz-screen" style="display:none;">
+    <label for="teamname">Nom d’équipe :</label>
+    <input id="teamname" type="text" placeholder="Votre équipe">
+    <h2 id="question-title" style="display:none;"></h2>
+    <div id="options" style="display:none;"></div>
+    <div id="score-container" style="display:none;"></div>
+  </div>
+
+  <!-- Écran Admin -->
+  <div id="admin-screen" style="display:none;">
+    <h2>Résultats du quiz</h2>
+    <input id="admin-password" type="password" placeholder="Mot de passe admin">
+    <button id="validate-admin-btn">Valider</button>
+    <div id="admin-results" style="margin-top:20px; display:none;"></div>
+  </div>
 </div>
 
 <script>
@@ -64,32 +73,41 @@
     { question: "2 + 2 = ?", options: ["3","4","5"], answer: 1 },
     { question: "Couleur du ciel par temps clair ?", options: ["Rouge","Bleu","Vert"], answer: 1 }
   ];
-
   let index = 0;
   let score = 0;
   let teamName = '';
   let reponsesUtilisateur = [];
 
+  const quizBtn = document.getElementById('quiz-btn');
+  const adminBtn = document.getElementById('admin-btn');
+  const homeScreen = document.getElementById('home-screen');
+  const quizScreen = document.getElementById('quiz-screen');
+  const adminScreen = document.getElementById('admin-screen');
   const title = document.getElementById('question-title');
   const optionsDiv = document.getElementById('options');
   const scoreContainer = document.getElementById('score-container');
 
-  document.getElementById('start-btn').onclick = () => {
-    teamName = document.getElementById('teamname').value.trim();
-    if(!teamName) return alert('Veuillez entrer le nom de votre équipe.');
-    document.getElementById('start-screen').style.display='none';
-    title.style.display='block';
-    optionsDiv.style.display='block';
+  quizBtn.onclick = () => {
+    homeScreen.style.display='none';
+    quizScreen.style.display='block';
     afficherQuestion();
-  }
+  };
+  adminBtn.onclick = () => {
+    homeScreen.style.display='none';
+    adminScreen.style.display='block';
+  };
+  document.getElementById('validate-admin-btn').onclick = () => {
+    const pass = document.getElementById('admin-password').value;
+    if(pass === "motdepasse123") chargerScores();
+    else alert('Mot de passe incorrect');
+  };
 
   function afficherQuestion() {
-    if (index >= questions.length) {
-      afficherResultats();
-      return;
-    }
+    if (index >= questions.length) return afficherResultats();
     const q = questions[index];
     title.innerText = q.question;
+    title.style.display='block';
+    optionsDiv.style.display='block';
     optionsDiv.innerHTML = '';
     q.options.forEach((opt,i) => {
       const btn = document.createElement('button');
@@ -108,25 +126,44 @@
   }
 
   function envoyerResultat(teamName, score, reponsesUtilisateur) {
-    firebase.database().ref('scores/').push({ teamName, score, answers: reponsesUtilisateur, timestamp: new Date().toISOString() })
-      .then(() => console.log('✅ Résultat enregistré dans Firebase'))
-      .catch((error) => console.error('❌ Erreur Firebase:', error));
+    db.ref('scores/').push({ teamName, score, answers: reponsesUtilisateur, timestamp: new Date().toISOString() })
+      .then(() => console.log('✅ enregistré'))
+      .catch((error) => console.error('❌ erreur:', error));
   }
 
   function afficherResultats() {
     title.style.display='none';
     optionsDiv.style.display='none';
     scoreContainer.style.display='block';
-
-    // Envoie le résultat dans Firebase
-    envoyerResultat(teamName, score, reponsesUtilisateur);
-
-    // Affiche un message neutre
+    envoyerResultat(teamName, score, reponsesUtilisateur); // Enregistre dans Firebase
     scoreContainer.innerHTML = `
       <h3>Merci d'avoir participé, ${teamName} ! 🎉</h3>
-      <p>Vos réponses ont bien été enregistrées.</p>
-      <p>(Le score sera communiqué plus tard par l'organisateur.)</p>
+      <p>Vos réponses ont été enregistrées.</p>
     `;
+  }
+
+  function chargerScores() {
+    const container = document.getElementById('admin-results');
+    container.innerHTML = '';
+    container.style.display='block';
+    db.ref('scores/').once('value').then((snapshot) => {
+      let allScores = [];
+      snapshot.forEach((child) => allScores.push(child.val()));
+      allScores.sort((a,b) => b.score - a.score); // Tri
+      allScores.forEach((data,i) => {
+        container.innerHTML += `
+          <hr>
+          <p><strong>${i+1}. ${data.teamName}</strong> — Score: ${data.score}</p>
+          <details>
+            <summary>Voir les réponses</summary>
+            ${data.answers.map((ans,j) => `
+              <p>${j+1}. ${ans.question}<br>
+              Réponse choisie: ${ans.options[ans.choisi]}<br>
+              Bonne réponse: ${ans.options[ans.bonne]}</p>`).join('')}
+          </details>
+        `;
+      });
+    });
   }
 </script>
 
